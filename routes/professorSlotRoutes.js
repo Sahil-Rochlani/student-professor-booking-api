@@ -1,22 +1,33 @@
 const { Router } = require('express');
+const authorizeRole = require('../middlewares/authorizeRole');
+const authenticate = require('../middlewares/authenticate');
+const { createProfessorSlotController, getOwnSlotsController, deleteSlotByIdController, cancelAppointmentController } = require('../controllers/professorController');
 const professorSlotRouter = Router();
 require('dotenv').config()
 
 
-professorSlotRouter.post('/slots', (req, res) => {
+professorSlotRouter.post('/slots', 
+    authenticate,
+    authorizeRole('professor'),
+    createProfessorSlotController
+)
 
-})
+professorSlotRouter.get('/slots', 
+    authenticate,
+    authorizeRole('professor'),
+    getOwnSlotsController
+)
 
-professorSlotRouter.get('/slots', (req, res) => {
+professorSlotRouter.delete('/slot/:id', 
+    authenticate, 
+    authorizeRole('professor'),
+    deleteSlotByIdController
+)
 
-})
-
-professorSlotRouter.delete('/slot/:id', (req, res) => {
-
-})
-
-professorSlotRouter.delete('/appointment/:id', (req, res) => {
-
-})
+professorSlotRouter.delete('/appointment/:id', 
+    authenticate,
+    authorizeRole('professor'),
+    cancelAppointmentController
+)
 
 module.exports = professorSlotRouter

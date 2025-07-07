@@ -1,14 +1,11 @@
 const { Router } = require('express')
+const { signupController, signinController } = require('../controllers/authController')
 const userRouter = Router()
 require('dotenv').config()
 
 
-userRouter.post('/signup', async (req, res) => {
+userRouter.post('/signup', signupController)
 
-})
-
-userRouter.post('/signin', async (req, res) => {
-    
-})
+userRouter.post('/signin', signinController)
 
 module.exports = userRouter
