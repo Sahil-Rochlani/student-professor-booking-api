@@ -8,9 +8,7 @@ exports.getAvailableSlotsByProfessorController = async (req, res) => {
             isBooked: false, 
             slotTime:{$gte: Date.now()}
         })
-        if(slots.length == 0){
-            return res.status(404).json({message: "There are no slots available"})
-        }
+
         const trimmedSlots = slots.map(slot => ({
             _id: slot._id, 
             name: slot.name, 
@@ -29,16 +27,17 @@ exports.getAvailableSlotsByProfessorController = async (req, res) => {
 
 exports.bookAppointmentController = async (req, res) => {
     try{
-        const slot = await Slot.findById(req.params.id)
+        const slot = await Slot.findOneAndUpdate(
+            { _id: req.params.id, isBooked: false },
+            { isBooked: true },
+            { new: true }
+          );          
         if(!slot){
             return res.status(404).json({error: "The slot with the given id doesn't exist"})
         }
-        slot.isBooked = true;
-        await slot.save()
 
         const appointment = await Appointment.create({
             studentId: req.user._id,
-            professorId: slot.professorId,
             slotId: req.params.id
         })
 
@@ -54,8 +53,8 @@ exports.bookAppointmentController = async (req, res) => {
 
         const trimmedAppointment = {
             _id: populatedAppointment._id, 
-            professor: populatedAppointment.professorId.name, 
-            email: populatedAppointment.email, 
+            professor: populatedAppointment.slotId.professorId.name, 
+            email: populatedAppointment.slotId.professorId.email, 
             slot: populatedAppointment.slotId.slotTime
         }
 
@@ -83,20 +82,13 @@ exports.getStudentAppointmentsController = async (req, res) => {
                 }
             }
         ])
-        if(appointments.length == 0){
-            return res.status(404).json({message: "There are no appointments booked"})
-        }
-        const upcomingAppointments = appointments.filter(app =>
-            new Date(app.slotId.slotTime) >= Date.now()
-          );
-      
-          
-        const response = upcomingAppointments.map(app => ({
-            _id: app._id,
-            name: app.slotId.professorId.name,
-            email: app.slotId.professorId.email,
-            time: app.slotId.slotTime
-        }));
+        const response = appointments.filter(app => app.slotId.slotTime >= new Date())
+                                     .map(app => ({
+                                        _id: app._id,
+                                        name: app.slotId.professorId.name,
+                                        email: app.slotId.professorId.email,
+                                        time: app.slotId.slotTime
+                                     }))
     
         res.status(200).json({ appointments: response });
         

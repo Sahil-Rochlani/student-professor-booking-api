@@ -1,3 +1,4 @@
+const Appointment = require("../models/Appointment")
 const Slot = require("../models/Slot")
 const User = require("../models/User")
 const flattenZodError = require("../utils/flattenZodError")
@@ -46,10 +47,6 @@ exports.getOwnSlotsController = async (req, res) => {
     try{
         const slots = await Slot.find({professorId: req.user._id})
 
-        if(slots.length === 0) {
-            return res.status(404).json({ message: "No slots found for this professor." });
-        }
-
         const trimmedSlots = slots.map(slot => {
             const slotObj = slot.toObject()
             delete slotObj.__v
@@ -69,10 +66,10 @@ exports.getOwnSlotsController = async (req, res) => {
 
 exports.deleteSlotByIdController = async (req, res) => {
     try{
-        const deletedSlot = await Slot.findByIdAndDelete(req.params.id)
+        const deletedSlot = await Slot.findOneAndDelete({_id:req.params.id, professorId: req.user._id})
         if (!deletedSlot) {
             return res.status(404).json({ error: "Slot not found" });
-          }
+        }
           
         res.status(200).json({ message: "Slot deleted successfully", slot: deletedSlot });
     }
@@ -84,9 +81,41 @@ exports.deleteSlotByIdController = async (req, res) => {
     }
 }
 
+exports.getAppointmentsController = async (req, res) => {
+    try{
+        const appointments = await Appointment.find().populate([
+            {
+                path: 'studentId'
+            },
+            {
+                path:'slotId',
+            }
+        ])
+        const filteredAppointments = appointments.filter(app => app.slotId.professorId.toString() === req.user._id.toString() && app.slotId.slotTime >= new Date())
+                                                 .map(app => ({_id : app._id, studentName: app.studentId.name, email:app.studentId.email, time:app.slotId.slotTime}))
+                                
+        res.status(200).json({appointments: filteredAppointments})     
+
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).json({
+            error: 'Something went wrong. Please try again later.'
+        });
+    }
+}
+
 exports.cancelAppointmentController = async (req, res) => {
     try{
-
+        const deletedAppointment = await Appointment.findByIdAndDelete(req.params.id)
+        if(!deletedAppointment){
+            return res.status(404).json({error: "Appointment with the given id doesn't exist"})
+        }
+        await Slot.findByIdAndUpdate(deletedAppointment.slotId, {isBooked: false})
+        res.status(200).json({
+            message: "Appointment cancelled successfully",
+            deletedAppointment
+        })
     }
     catch(err){
         console.log(err)
