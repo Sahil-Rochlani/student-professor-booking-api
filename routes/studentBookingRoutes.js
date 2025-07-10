@@ -5,13 +5,13 @@ const { getAvailableSlotsByProfessorController, bookAppointmentController, getSt
 const studentBookingRouter = Router();
 require('dotenv').config()
 
-studentBookingRouter.get('/professor/:id/slots', 
+studentBookingRouter.get('/professor/:professorId/slots', 
     authenticate,
     authorizeRole('student'),
     getAvailableSlotsByProfessorController
 )
 
-studentBookingRouter.post('/slots/:id/book', 
+studentBookingRouter.post('/slots/:slotId/book', 
     authenticate,
     authorizeRole('student'),
     bookAppointmentController

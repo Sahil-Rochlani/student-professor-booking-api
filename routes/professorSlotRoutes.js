@@ -18,7 +18,7 @@ professorSlotRouter.get('/slots',
     getOwnSlotsController
 )
 
-professorSlotRouter.delete('/slots/:id', 
+professorSlotRouter.delete('/slots/:slotId', 
     authenticate, 
     authorizeRole('professor'),
     deleteSlotByIdController
@@ -30,7 +30,7 @@ professorSlotRouter.get('/appointments',
     getAppointmentsController
 )
 
-professorSlotRouter.delete('/appointments/:id', 
+professorSlotRouter.delete('/appointments/:appointmentId', 
     authenticate,
     authorizeRole('professor'),
     cancelAppointmentController

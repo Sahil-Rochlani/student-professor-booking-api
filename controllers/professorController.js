@@ -66,7 +66,7 @@ exports.getOwnSlotsController = async (req, res) => {
 
 exports.deleteSlotByIdController = async (req, res) => {
     try{
-        const deletedSlot = await Slot.findOneAndDelete({_id:req.params.id, professorId: req.user._id})
+        const deletedSlot = await Slot.findOneAndDelete({_id:req.params.slotId, professorId: req.user._id})
         if (!deletedSlot) {
             return res.status(404).json({ error: "Slot not found" });
         }
@@ -107,7 +107,7 @@ exports.getAppointmentsController = async (req, res) => {
 
 exports.cancelAppointmentController = async (req, res) => {
     try{
-        const deletedAppointment = await Appointment.findByIdAndDelete(req.params.id)
+        const deletedAppointment = await Appointment.findByIdAndDelete(req.params.appointmentId)
         if(!deletedAppointment){
             return res.status(404).json({error: "Appointment with the given id doesn't exist"})
         }

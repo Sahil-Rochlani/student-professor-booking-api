@@ -4,7 +4,7 @@ const Slot = require("../models/Slot");
 exports.getAvailableSlotsByProfessorController = async (req, res) => {
     try{
         const slots = await Slot.find({
-            professorId: req.params.id, 
+            professorId: req.params.professorId, 
             isBooked: false, 
             slotTime:{$gte: Date.now()}
         })
@@ -28,7 +28,7 @@ exports.getAvailableSlotsByProfessorController = async (req, res) => {
 exports.bookAppointmentController = async (req, res) => {
     try{
         const slot = await Slot.findOneAndUpdate(
-            { _id: req.params.id, isBooked: false },
+            { _id: req.params.slotId, isBooked: false },
             { isBooked: true },
             { new: true }
           );          
@@ -38,7 +38,7 @@ exports.bookAppointmentController = async (req, res) => {
 
         const appointment = await Appointment.create({
             studentId: req.user._id,
-            slotId: req.params.id
+            slotId: req.params.slotId
         })
 
         const populatedAppointment = await appointment.populate([
