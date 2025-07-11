@@ -5,18 +5,21 @@ const { getAvailableSlotsByProfessorController, bookAppointmentController, getSt
 const studentBookingRouter = Router();
 require('dotenv').config()
 
+// Route to view available slots of a specific professor
 studentBookingRouter.get('/professor/:professorId/slots', 
     authenticate,
     authorizeRole('student'),
     getAvailableSlotsByProfessorController
 )
 
+// Route to book a specific slot
 studentBookingRouter.post('/slots/:slotId/book', 
     authenticate,
     authorizeRole('student'),
     bookAppointmentController
 )
 
+// Route to view student's own booked appointments
 studentBookingRouter.get('/appointments', 
     authenticate,
     authorizeRole('student'),

@@ -84,9 +84,10 @@ JWT_SECRET=your-secret
 
 ---
 
-## 📹 Demo (Optional)
+## 📹 Demo Videos
 
-You can add a link to a Loom / YouTube video walk-through here once you record it.
+You can watch the full code walkthrough and feature demonstration here:  
+🔗 [Demo Video (Google Drive)](https://drive.google.com/drive/folders/1MuB748TbDQzedD8YZvVnTtCliZx-4AHd?usp=sharing)
 
 ---
 

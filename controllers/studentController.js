@@ -1,6 +1,7 @@
 const Appointment = require("../models/Appointment");
 const Slot = require("../models/Slot");
 
+// Controller to handle retrival of available (Future + not booked) slots of a specific professor
 exports.getAvailableSlotsByProfessorController = async (req, res) => {
     try{
         const slots = await Slot.find({
@@ -25,13 +26,16 @@ exports.getAvailableSlotsByProfessorController = async (req, res) => {
     }
 }
 
+// Controller to handle appointment creation
 exports.bookAppointmentController = async (req, res) => {
     try{
         const slot = await Slot.findOneAndUpdate(
             { _id: req.params.slotId, isBooked: false },
             { isBooked: true },
             { new: true }
-          );          
+          );     
+          
+        // Check if a slot exists
         if(!slot){
             return res.status(404).json({error: "The slot with the given id doesn't exist"})
         }
@@ -41,6 +45,7 @@ exports.bookAppointmentController = async (req, res) => {
             slotId: req.params.slotId
         })
 
+        // Populating and trimming the response object
         const populatedAppointment = await appointment.populate([
             {
                 path:'slotId',
@@ -50,7 +55,6 @@ exports.bookAppointmentController = async (req, res) => {
                 }
             }
         ])
-
         const trimmedAppointment = {
             _id: populatedAppointment._id, 
             professor: populatedAppointment.slotId.professorId.name, 
@@ -71,6 +75,7 @@ exports.bookAppointmentController = async (req, res) => {
     }
 }
 
+// Controller to handle retrieval of student's upcoming appointments
 exports.getStudentAppointmentsController = async (req, res) => {
     try{
         const appointments = await Appointment.find({studentId: req.user._id}).populate([
@@ -82,6 +87,8 @@ exports.getStudentAppointmentsController = async (req, res) => {
                 }
             }
         ])
+
+        // Filter past appointments and restructure the respose object
         const response = appointments.filter(app => app.slotId.slotTime >= new Date())
                                      .map(app => ({
                                         _id: app._id,

@@ -7,7 +7,7 @@ let a1Cookie , a2Cookie, professorCookie, professorId, a1ChosenSlotId, a1Appoint
 
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI); 
-  }, 10000); // 
+}, 10000); // 
 
 test('Student A1 authenticates to access the system', async () => {
     const res = await request(app)
